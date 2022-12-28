@@ -1,0 +1,286 @@
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "WISKI-Web des Hessisches Landesamt für Naturschutz, Umwelt und Geologie (HLNUG) "
+  description:  "Inoffizielle OpenAPI Spezifikation für das Hochwasserportal WISKI-Web des Hessisches Landesamt für Naturschutz, Umwelt und Geologie (HLNUG)
+
+  ### Hinweis CORS
+
+  Die Plattform unterstützt keine CORS Abfragen, daher muss für die Verwendung in einem Client sowie hier in der Swagger UI ein Proxy-Server eingerichtet werden. Dieser Proxy-Server muss den CORS Header `Access-Control-Allow-Origin: *` setzen.
+"
+  contact:
+    name: "Hessisches Landesamt für Naturschutz, Umwelt und Geologie"
+    url: "https://www.hlnug.de"
+    email: "kontakt@hlnug.hessen.de"
+
+servers:
+  - url: "https://www.hlnug.de/static/pegel"
+
+tags:
+  - name: Pegel
+  - name: Vorhersage
+
+paths:
+  /wiskiweb3/data/internet/layers/10/index.json:
+    get:
+      operationId: GetAllStations
+      summary: "Alle Pegelstationen"
+      description: "Alle Pegelstationen und der letzte Wasserstand im JSON Format."
+      tags:
+        - Pegel
+      responses:
+        "200":
+          description: "Alle Pegelstationen"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/stations"
+
+  /wiskiweb3/data/internet/stations/0/{station}/{parameter}/{timeframe}.json:
+    get:
+      operationId: GetStationData
+      summary: "Daten der Pegelstation"
+      description: "Die Daten einer Pegelstation im JSON Format für einen bestimmten Zeitraum."
+      tags:
+        - Pegel
+      responses:
+          "200":
+            description: "Stationsdaten"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/stations"
+      parameters:
+        - in: path
+          name: station
+          schema:
+            type: string
+          required: true
+          description: ID of the station
+          examples:
+            wasser:
+              value: "23960709"
+              summary: "Eberstadt"
+        - in: path
+          name: parameter
+          schema:
+            type: string
+          required: true
+          description: Parameter
+          examples:
+            wasser:
+              value: "W"
+              summary: "Wasserstand"
+            durchfluss:
+              value: "Q"
+              summary: "Durchfluss"
+        - in: path
+          name: timeframe
+          schema:
+            type: string
+          required: true
+          description: Zeitraum
+          examples:
+            48hours:
+              value: "AktuelleDaten48h"
+              summary: "Aktuelle Daten der letzten 48 Stunden"
+            week:
+              value: "week"
+              summary: "Daten der letzten Woche"
+            year:
+              value: "year"
+              summary: "Daten des letzten Jahres"
+
+
+
+  /wiskiweb3/data/internet/stations/0/{station}/{parameter}/alarmlevel.json:
+    get:
+      operationId: Alarmlevel
+      summary: "Alarmlevel"
+      description: "Die jeweiligen Alarmlevel einer Pegelstation."
+      tags:
+        - Pegel
+      parameters:
+        - in: path
+          name: station
+          schema:
+            type: string
+          required: true
+          description: ID of the station
+          examples:
+            wasser:
+              value: "23960709"
+              summary: "Eberstadt"
+        - in: path
+          name: parameter
+          schema:
+            type: string
+          required: true
+          description: Parameter
+          examples:
+            wasser:
+              value: "W"
+              summary: "Wasserstand"
+            durchfluss:
+              value: "Q"
+              summary: "Durchfluss"
+      responses:
+        "200":
+          description: "Alarmlevel"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/alarmlevel"
+
+
+  /wiskiweb3/data/internet/layers/16/index.dajson:
+    get:
+      operationId: GetVorhersagePegel
+      summary: "Vorhersage Pegel"
+      description: "Die Vorhersage Pegel im JSON Format."
+      tags:
+        - Vorhersage
+      responses:
+        "200":
+          description: "Liste der Vorhersage Pegel mit Daten"
+
+
+components:
+  schemas:
+    stations:
+      type: array
+      items:
+        type: object
+        properties:
+          ts_id:
+            type: number
+            example: 10980010
+          timestamp:
+            type: string
+            example: 2022-12-05T09:30:00.000+01:00
+          req_timestamp:
+            type: string
+            format: nullable
+          ts_value:
+            type: number
+            example: 20
+          station_latitude:
+            type: number
+            example: 49.659365
+          station_longitude:
+            type: number
+            example: 9.009484
+          class_waterlevel:
+            type: string
+            format: nullable
+          station_id:
+            type: number
+            example: 41472
+          station_no:
+            type: number
+            example: 24740559
+          station_name:
+            type: string
+            example: Dorf-Erbach
+          station_longname:
+            type: string
+            example: Dorf-Erbach
+          stationparameter_name:
+            type: string
+            example: W
+          stationparameter_longname:
+            type: string
+            example: Wasserstand
+          ts_shortname:
+            type: string
+            example: 15m.Cmd.RelAbs.P
+          ts_name:
+            type: string
+            example: 15.P
+          ts_unitsymbol:
+            type: string
+            example: cm
+          ts_precision:
+            type: string
+            example: DECI02
+          ts_path:
+            type: string
+            example: 0/24740559/W/15m.Cmd.RelAbs.P
+          INTERNET_BEMERKUNG:
+            type: string
+            example: ""
+          URLEXTERN:
+            type: string
+            example: ""
+          Durchflusskennwerte:
+            type: string
+            example: no
+          Meldestufen:
+            type: string
+            example: no
+          hydrounit_name:
+            type: string
+            example: Mittlerer Main
+          EXTERN-WATERS-NAME:
+            type: string
+            example: Erdbach
+          BODY_RESPONSIBLE:
+            type: string
+            example: RPU Darmstadt
+          WTO_OBJECT:
+            type: string
+            example: Erdbach
+          WEB_Alarmklassen_Inaktiv:
+            type: string
+            example: ""
+          Vorhersagepegel:
+            type: string
+            example: no
+          WTO_MLST:
+            type: string
+            example: 200 km
+    alarmlevel:
+     type: array
+     items:
+        type: object
+        properties:
+          station_name:
+            type: string
+            example: Eberstadt
+          station_longname:
+            type: string
+            example: Eberstadt
+          station_no:
+            type: string
+            example: 23960709
+          stationparameter_name:
+            type: string
+            example: Q
+          stationparameter_longname:
+            type: string
+            example: Gewässerdurchfluss
+          ts_name:
+            type: string
+            example: MQ
+          ts_shortname:
+            type: string
+            example: Cmd.MQ
+          ts_unitsymbol:
+            type: string
+            example: m³/s
+          ts_precision:
+            type: string
+            example: Signideci3300
+          rows:
+            type: string
+            example: 1
+          columns:
+            type: string
+            example: TimestampValue
+          data:
+            type: array
+            items:
+              type: array
+              items:
+                type: string
+                example: 1950-01-01T00:00:00.000+01:00
